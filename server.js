@@ -1,10 +1,13 @@
-
 require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+
 const conectarBanco = require("./src/config/database");
+
+// Importar as rotas
 const vagaRoutes = require("./src/routes/vagaRoutes");
+const profissionalRoutes = require("./src/routes/profissionalRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +29,9 @@ app.get("/", (req, res) => {
 
 // Rotas do CRUD de vagas
 app.use("/api/vagas", vagaRoutes);
+
+// Rotas do CRUD de profissionais
+app.use("/api/profissionais", profissionalRoutes);
 
 // Iniciar a aplicação
 const iniciarServidor = async () => {
