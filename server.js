@@ -1,9 +1,21 @@
 require("dotenv").config();
 
-const express = require("express");
-const cors = require("cors");
 
+const express = require("express");
+const dns = require('node:dns');
+const cors = require("cors");
 const conectarBanco = require("./src/config/database");
+
+
+
+
+dns.setServers([
+   '8.8.8.8',
+   '8.8.4.4',
+]);
+
+
+
 
 // Importar as rotas
 const vagaRoutes = require("./src/routes/vagaRoutes");
