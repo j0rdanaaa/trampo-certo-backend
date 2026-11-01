@@ -4,63 +4,105 @@ const router = express.Router();
 
 const Profissional = require("../models/Profissional");
 
-// CADASTRAR profissional
+// Função para tratar erros
+const tratarErro = (erro, res, operacao) => {
+  console.error(`Erro ao ${operacao}:`, erro.message);
+
+  if (
+    erro.name === "ValidationError" ||
+    erro.name === "CastError" ||
+    erro.name === "StrictModeError"
+  ) {
+    return res.status(400).json({
+      mensagem: "Dados ou ID inválidos.",
+      detalhe: erro.message
+    });
+  }
+
+  return res.status(500).json({
+    mensagem: `Erro interno ao ${operacao}.`
+  });
+};
+
+// CREATE - Cadastrar profissional
 router.post("/", async (req, res) => {
   try {
-    const novoProfissional = new Profissional(req.body);
-    const profissionalSalvo = await novoProfissional.save();
+    const {
+      nome,
+      profissao,
+      cidade,
+      disponibilidade,
+      experiencia
+    } = req.body;
 
-    res.status(201).json(profissionalSalvo);
-  } catch (erro) {
-    res.status(400).json({
-      mensagem: "Erro ao cadastrar profissional.",
-      erro: erro.message,
+    const profissionalSalvo = await Profissional.create({
+      nome,
+      profissao,
+      cidade,
+      disponibilidade,
+      experiencia
     });
+
+    return res.status(201).json(profissionalSalvo);
+  } catch (erro) {
+    return tratarErro(erro, res, "cadastrar profissional");
   }
 });
 
-// LISTAR profissionais
+// READ - Listar profissionais
 router.get("/", async (req, res) => {
   try {
     const profissionais = await Profissional.find();
 
-    res.status(200).json(profissionais);
+    return res.status(200).json(profissionais);
   } catch (erro) {
-    res.status(500).json({
-      mensagem: "Erro ao listar profissionais.",
-    });
+    return tratarErro(erro, res, "listar profissionais");
   }
 });
 
-// EDITAR profissional
+// UPDATE - Atualizar profissional
 router.put("/:id", async (req, res) => {
   try {
+    const {
+      nome,
+      profissao,
+      cidade,
+      disponibilidade,
+      experiencia
+    } = req.body;
+
     const profissionalAtualizado =
       await Profissional.findByIdAndUpdate(
         req.params.id,
-        req.body,
-        { new: true, runValidators: true }
+        {
+          nome,
+          profissao,
+          cidade,
+          disponibilidade,
+          experiencia
+        },
+        {
+          new: true,
+          runValidators: true
+        }
       );
 
     if (!profissionalAtualizado) {
       return res.status(404).json({
-        mensagem: "Profissional não encontrado.",
+        mensagem: "Profissional não encontrado."
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       mensagem: "Profissional atualizado com sucesso!",
-      profissional: profissionalAtualizado,
+      profissional: profissionalAtualizado
     });
   } catch (erro) {
-    res.status(400).json({
-      mensagem: "Erro ao atualizar profissional.",
-      erro: erro.message,
-    });
+    return tratarErro(erro, res, "atualizar profissional");
   }
 });
 
-// EXCLUIR profissional
+// DELETE - Excluir profissional
 router.delete("/:id", async (req, res) => {
   try {
     const profissionalExcluido =
@@ -68,18 +110,15 @@ router.delete("/:id", async (req, res) => {
 
     if (!profissionalExcluido) {
       return res.status(404).json({
-        mensagem: "Profissional não encontrado.",
+        mensagem: "Profissional não encontrado."
       });
     }
 
-    res.status(200).json({
-      mensagem: "Profissional excluído com sucesso!",
+    return res.status(200).json({
+      mensagem: "Profissional excluído com sucesso!"
     });
   } catch (erro) {
-    res.status(400).json({
-      mensagem: "Erro ao excluir profissional.",
-      erro: erro.message,
-    });
+    return tratarErro(erro, res, "excluir profissional");
   }
 });
 
