@@ -122,4 +122,6 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// Rotas do CRUD validadas e testadas para a apresentação
+
 module.exports = router;
